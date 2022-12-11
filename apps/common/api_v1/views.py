@@ -90,16 +90,23 @@ class VerifyLoginUser(APIView):
         
 
 class EmployeeList(generics.ListAPIView):
+    """
+    :listing company employee
+    """
     serializer_class = EmployeeSerializer
     queryset = Employees.objects.all()
     authentication_classes = (TokenAuthentication,)
     filter_backends = [DjangoFilterBackend]
     filterset_fields = "__all__"
-    # ordering_fields = "__all__"
-    # search_fields = "__all__"
 
     def get_queryset(self):
         queryset = super(EmployeeList, self).get_queryset()
+        ordering =  self.request.query_params.get("ordering")
+        search =  self.request.query_params.get("search")
+        if ordering:
+            return queryset.order_by(ordering)
+        if search:
+            return queryset.filter()
         return queryset
     
     def post(self, request, *args, **kwargs):
@@ -115,6 +122,9 @@ class EmployeeList(generics.ListAPIView):
 
 
 class EmployeeRemove(generics.DestroyAPIView):
+    """
+    :Employee remove endpoint
+    """
     authentication_classes = (TokenAuthentication,)
     serializer_class = EmployeeSerializer
     queryset = Employees.objects.all()
@@ -126,6 +136,9 @@ class EmployeeRemove(generics.DestroyAPIView):
 
 
 class EmployeeUpdate(generics.DestroyAPIView):
+    """
+    :Employee update endpoint
+    """
     authentication_classes = (TokenAuthentication,)
     serializer_class = EmployeeUpdateSerializer
     queryset = Employees.objects.all()

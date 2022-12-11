@@ -3,7 +3,6 @@ from apps.common.models import Employees
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from apps.tenant.custom_exception import PlainValidationError
-from DjangoSassApi import settings
 
 
 class CompanyAccountSerializer(serializers.ModelSerializer):
@@ -44,7 +43,6 @@ class EmployeeUpdateSerializer(serializers.ModelSerializer):
     """
     Serializer for employee update endpoint.
     """
-    # profile_pic = serializers.FileField()
 
     class Meta:
         model = Employees
