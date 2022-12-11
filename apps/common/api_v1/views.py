@@ -18,8 +18,14 @@ from rest_framework.authentication import TokenAuthentication
 from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
 from DjangoSassApi import settings
+from django.core.files.images import get_image_dimensions
+from apps.tenant.custom_exception import PlainValidationError
 # from rest_framework import filters
 
+from sorl.thumbnail.engines.pil_engine import Engine
+
+# This object has all we need
+engine = Engine()
 
 
 class CreateCompanyAccountAPIView(generics.CreateAPIView):
@@ -116,8 +122,11 @@ class EmployeeList(generics.ListAPIView):
         serializer = serializer.save()
         parent_dir = f"{settings.BASE_DIR}/profile_pic_upload/{request.headers.get('uid')}_{serializer.id}.png"
         with open(parent_dir, 'wb+') as f:
-            for chunk in profile_pic.chunks():
-                f.write(chunk)
+            # for chunk in profile_pic.chunks():
+            #     f.write(chunk)
+                im = engine.get_image(profile_pic)
+                im_crop = engine.crop(im, (100,100), options={'crop': 'smart'})
+                im_crop.save(parent_dir)
         return Response(status=status.HTTP_200_OK,data={"error":False,"data":[],"message":"employee is created."})
 
 
@@ -151,6 +160,7 @@ class EmployeeUpdate(generics.DestroyAPIView):
         serializer=serializer.save()
         parent_dir = f"{settings.BASE_DIR}/profile_pic_upload/{request.headers.get('uid')}_{serializer.id}.png"
         with open(parent_dir, 'wb+') as f:
-            for chunk in profile_pic.chunks():
-                f.write(chunk)
+            im = engine.get_image(profile_pic)
+            im_crop = engine.crop(im, (100,100), options={'crop': 'smart'})
+            im_crop.save(parent_dir)
         return Response(status=status.HTTP_200_OK,data={"error":False,"data":[],"message":"employee updated successfully."})
